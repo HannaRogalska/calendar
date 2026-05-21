@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
-import type { calendarHookType } from '../types/calendarType';
+import type { calendarHook, calendarCells } from '../types/calendarType';
 
 const WEEK_DAYS = Array.from({ length: 7 }, (_, i) => {
   const tempDate = new Date(2024, 0, 1 + i); // 1 Jan 2024 - Monday
   return { id: i, dayOfWeek: tempDate.toLocaleString('en-US', { weekday: 'short' }) };
 });
 
-const useCalendar = (): calendarHookType => {
+const useCalendar = (): calendarHook => {
   const [nowDate, setNowDate] = useState(new Date());
   const year = nowDate.getFullYear();
   const month = nowDate.getMonth() + 1;
@@ -24,7 +24,7 @@ const useCalendar = (): calendarHookType => {
   };
 
   const calendarCells = useMemo(() => {
-    const cells = [];
+    const cells: calendarCells[] = [];
     // Get total days in the current month by requesting day 0 of the next month
     const daysInMonth = new Date(year, month, 0).getDate();
     // Find the weekday of the first day of the month (0 = Sunday, 1 = Monday, etc.)

@@ -10,10 +10,10 @@ const CalendarPage = () => {
     <div>
       <div className={style.container}>
         <div className={style.btn_container}>
-          <button onClick={nextMonth} className={style.btn}>
+          <button type="button" onClick={nextMonth} className={style.btn}>
             <ChevronUp />
           </button>
-          <button onClick={prevMonth} className={style.btn}>
+          <button type="button" onClick={prevMonth} className={style.btn}>
             <ChevronDown />
           </button>
         </div>

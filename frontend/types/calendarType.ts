@@ -1,15 +1,15 @@
-export type calendarCellsType = {
+export type calendarCells = {
   id: string;
   dayOfMonth: number | string;
 };
-export type calendarWeekDaysType = {
+export type calendarWeekDays = {
   id: number;
   dayOfWeek: string;
 };
-export interface calendarHookType {
+export interface calendarHook {
   nextMonth: () => void;
   prevMonth: () => void;
-  calendarCells: calendarCellsType[];
-  weekDays: calendarWeekDaysType[];
+  calendarCells: calendarCells[];
+  weekDays: calendarWeekDays[];
   fullMonth: string;
 }
