@@ -1,0 +1,34 @@
+.weeks_box {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-weight: bold;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+}
+
+.btn_container {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.grid_for_month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  height: calc(100vh - 200px);
+}
+
+.day_cell {
+  padding: 10px;
+  border: 1px solid gray
+}
