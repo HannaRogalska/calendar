@@ -39,7 +39,17 @@ export const changeTask: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: 'Invalid ID format' });
       return;
     }
-    const task = await Task.findByIdAndUpdate(id, req.body, { runValidators: true, new: true });
+    const { title, description, isCompleted } = req.body;
+    if (title !== undefined && title.trim() === '') {
+      res.status(400).json({ message: 'Title is required' });
+      return;
+    }
+    const updates: Record<string, any> = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (isCompleted !== undefined) updates.isCompleted = isCompleted;
+
+    const task = await Task.findByIdAndUpdate(id, updates, { runValidators: true, new: true });
     if (!task) {
       res.status(404).json({ message: 'Task not found' });
       return;
