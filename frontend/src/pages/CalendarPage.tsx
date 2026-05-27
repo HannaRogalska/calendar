@@ -1,10 +1,9 @@
 import style from './CalendarPage.module.css';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import useCalendar from '../../hooks/useCalendar';
+import useCalendar from '../hooks/useCalendar';
 
 const CalendarPage = () => {
-  const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth } =
-    useCalendar();
+  const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth } = useCalendar();
 
   return (
     <div>
