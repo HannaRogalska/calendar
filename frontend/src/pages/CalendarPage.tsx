@@ -30,7 +30,8 @@ const CalendarPage = () => {
         <div className={style.grid_for_month}>
           {calendarCells.map((el) => (
             <div key={el.id} className={style.day_cell}>
-              {el.dayOfMonth}
+              {el.callDateKey}
+              {/* {el.dayOfMonth} */}
             </div>
           ))}
         </div>

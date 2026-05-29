@@ -1,13 +1,16 @@
 import { RequestHandler } from 'express';
 import Task from '../models/task.model';
 import mongoose from 'mongoose';
-import { EventSchema, GetTasksQuerySchema } from '../../../shared/schemas/event.schema';
+import {
+  BackendCreateEventSchema,
+  GetTasksQuerySchema,
+} from '../../../shared/schemas/event.schema';
 
 export const getAllTasks: RequestHandler = async (req, res, next) => {
   try {
     const scope = GetTasksQuerySchema.parse(req.query);
 
-    const allTasks = await Task.aggregate([
+    const groupTasks = await Task.aggregate([
       {
         $match: {
           date: {
@@ -26,6 +29,10 @@ export const getAllTasks: RequestHandler = async (req, res, next) => {
         $sort: { _id: 1 },
       },
     ]);
+    const allTasks = groupTasks.reduce((acc, task) => {
+      acc[task._id] = task.data;
+      return acc;
+    }, {});
     res.status(200).json({ data: allTasks });
   } catch (error) {
     next(error);
@@ -34,7 +41,7 @@ export const getAllTasks: RequestHandler = async (req, res, next) => {
 
 export const createTask: RequestHandler = async (req, res, next) => {
   try {
-    const parsedData = await EventSchema.parseAsync(req.body);
+    const parsedData = await BackendCreateEventSchema.parseAsync(req.body);
     const task = await Task.create(parsedData);
     res.status(201).json({ message: 'Task created', data: task });
   } catch (error) {
@@ -49,7 +56,7 @@ export const changeTask: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: 'Invalid ID format' });
       return;
     }
-    const parsedData = await EventSchema.partial().parseAsync(req.body);
+    const parsedData = await BackendCreateEventSchema.partial().parseAsync(req.body);
     const task = await Task.findByIdAndUpdate(id, parsedData, { new: true });
     if (!task) {
       res.status(404).json({ message: 'Task not found' });

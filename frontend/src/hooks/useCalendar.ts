@@ -40,7 +40,11 @@ const useCalendar = (): calendarHook => {
 
     // Fill the grid with the actual day numbers of the month
     for (let i = 1; i <= daysInMonth; i++) {
-      cells.push({ id: `day-${year}-${month}-${i}`, dayOfMonth: i });
+      cells.push({
+        id: `day-${year}-${month}-${i}`,
+        dayOfMonth: `${String(i).padStart(2, '0')}`,
+        callDateKey: `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`,
+      });
     }
     // Calculate trailing empty cells needed to complete the final row of 7 columns
     const trailingEmptyDays = cells.length % 7 === 0 ? 0 : 7 - (cells.length % 7);

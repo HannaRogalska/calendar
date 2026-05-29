@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-export const EventSchema = z.object({
+export const BaseEventSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  isCompleted: z.boolean().default(false),
+});
+export const BackendCreateEventSchema = BaseEventSchema.extend({
   date: z.coerce.date().refine(
     (date) => {
       const today = new Date();
@@ -11,10 +16,8 @@ export const EventSchema = z.object({
       error: 'The date cannot be in the past',
     }
   ),
-  title: z.string(),
-  description: z.string().optional(),
-  isCompleted: z.boolean().default(false),
 });
+
 export const GetTasksQuerySchema = z
   .object({
     start: z.coerce.date(),
@@ -24,4 +27,21 @@ export const GetTasksQuerySchema = z
     error: 'The end date cannot be earlier than the start date.',
     path: ['end'],
   });
-export type ZodTaskType = z.infer<typeof EventSchema>;
+
+export const ClientEventSchema = BaseEventSchema.extend({
+  _id: z.string(),
+  date: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  __v: z.number().optional(),
+});
+
+export const ApiResponseSchema = z.object({
+  data: z.record(
+    z.string(),
+    z.array(ClientEventSchema)
+  ),
+});
+
+export type ZodTaskType = z.infer<typeof BackendCreateEventSchema>;
+export type ApiTasksResponseType = z.output<typeof ApiResponseSchema>;
