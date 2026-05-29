@@ -63,6 +63,8 @@ const useCalendar = (): calendarHook => {
     calendarCells,
     weekDays: WEEK_DAYS,
     fullMonth,
+    year,
+    month,
   };
 };
 

@@ -9,13 +9,16 @@ import {
 export const getAllTasks: RequestHandler = async (req, res, next) => {
   try {
     const scope = GetTasksQuerySchema.parse(req.query);
+    const startOfDay = new Date(`${scope.start}T00:00:00.000Z`);
+    const endOfDay = new Date(`${scope.end}T23:59:59.999Z`);
+
 
     const groupTasks = await Task.aggregate([
       {
         $match: {
           date: {
-            $gte: scope.start,
-            $lt: scope.end,
+            $gte: startOfDay,
+            $lt: endOfDay,
           },
         },
       },

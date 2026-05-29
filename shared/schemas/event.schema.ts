@@ -20,8 +20,8 @@ export const BackendCreateEventSchema = BaseEventSchema.extend({
 
 export const GetTasksQuerySchema = z
   .object({
-    start: z.coerce.date(),
-    end: z.coerce.date(),
+    start: z.string(),
+    end: z.string(),
   })
   .refine((data) => data.end >= data.start, {
     error: 'The end date cannot be earlier than the start date.',

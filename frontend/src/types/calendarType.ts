@@ -13,4 +13,6 @@ export interface calendarHook {
   calendarCells: calendarCells[];
   weekDays: calendarWeekDays[];
   fullMonth: string;
+  year: number,
+  month: number
 }
