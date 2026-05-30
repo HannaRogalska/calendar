@@ -1,10 +1,41 @@
 import { RequestHandler } from 'express';
 import Task from '../models/task.model';
 import mongoose from 'mongoose';
+import {
+  BackendCreateEventSchema,
+  GetTasksQuerySchema,
+} from '../../../shared/schemas/event.schema';
 
 export const getAllTasks: RequestHandler = async (req, res, next) => {
   try {
-    const allTasks = await Task.find();
+    const scope = GetTasksQuerySchema.parse(req.query);
+    const startOfDay = new Date(`${scope.start}T00:00:00.000Z`);
+    const endOfDay = new Date(`${scope.end}T23:59:59.999Z`);
+
+
+    const groupTasks = await Task.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: startOfDay,
+            $lt: endOfDay,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          data: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+    const allTasks = groupTasks.reduce((acc, task) => {
+      acc[task._id] = task.data;
+      return acc;
+    }, {});
     res.status(200).json({ data: allTasks });
   } catch (error) {
     next(error);
@@ -13,21 +44,10 @@ export const getAllTasks: RequestHandler = async (req, res, next) => {
 
 export const createTask: RequestHandler = async (req, res, next) => {
   try {
-    const { title, description } = req.body;
-    if (!title) {
-      res.status(400).json({ message: 'Title is required' });
-      return;
-    }
-    const task = await Task.create({ title, description });
+    const parsedData = await BackendCreateEventSchema.parseAsync(req.body);
+    const task = await Task.create(parsedData);
     res.status(201).json({ message: 'Task created', data: task });
   } catch (error) {
-    if (error instanceof mongoose.Error.ValidationError) {
-      res.status(400).json({
-        message: 'Validation error',
-        errors: error.errors,
-      });
-      return;
-    }
     next(error);
   }
 };
@@ -39,30 +59,14 @@ export const changeTask: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: 'Invalid ID format' });
       return;
     }
-    const { title, description, isCompleted } = req.body;
-    if (title !== undefined && title.trim() === '') {
-      res.status(400).json({ message: 'Title is required' });
-      return;
-    }
-    const updates: Record<string, any> = {};
-    if (title !== undefined) updates.title = title;
-    if (description !== undefined) updates.description = description;
-    if (isCompleted !== undefined) updates.isCompleted = isCompleted;
-
-    const task = await Task.findByIdAndUpdate(id, updates, { runValidators: true, new: true });
+    const parsedData = await BackendCreateEventSchema.partial().parseAsync(req.body);
+    const task = await Task.findByIdAndUpdate(id, parsedData, { new: true });
     if (!task) {
       res.status(404).json({ message: 'Task not found' });
       return;
     }
     res.status(200).json({ message: 'Task updated', data: task });
   } catch (error) {
-    if (error instanceof mongoose.Error.ValidationError) {
-      res.status(400).json({
-        message: 'Validation error',
-        errors: error.errors,
-      });
-      return;
-    }
     next(error);
   }
 };
