@@ -60,7 +60,7 @@ export const changeTask: RequestHandler = async (req, res, next) => {
       return;
     }
     const parsedData = await BackendCreateEventSchema.partial().parseAsync(req.body);
-    const task = await Task.findByIdAndUpdate(id, parsedData, { new: true });
+    const task = await Task.findByIdAndUpdate(id, parsedData, { returnDocument: 'after' });
     if (!task) {
       res.status(404).json({ message: 'Task not found' });
       return;
