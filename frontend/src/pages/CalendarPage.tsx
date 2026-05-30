@@ -1,10 +1,27 @@
 import style from './CalendarPage.module.css';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import useCalendar from '../../hooks/useCalendar';
+import useCalendar from '../hooks/useCalendar';
+import { fetchTasks } from '../api/taskApi';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 const CalendarPage = () => {
-  const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth } =
-    useCalendar();
+  const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth, year, month } = useCalendar();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+  const lastDay = new Date(year, month, 0).getDate();
+  const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  console.log(isOpen);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['tasks', year, month],
+    queryFn: () => fetchTasks(startDate, endDate),
+  });
+  console.log(data);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading tasks...</div>;
 
   return (
     <div>
@@ -29,11 +46,19 @@ const CalendarPage = () => {
           ))}
         </div>
         <div className={style.grid_for_month}>
-          {calendarCells.map((el) => (
-            <div key={el.id} className={style.day_cell}>
-              {el.dayOfMonth}
-            </div>
-          ))}
+          {calendarCells.map((el) => {
+            const cellTasks = el.callDateKey ? data?.data?.[el.callDateKey] || [] : [];
+            return (
+              <div key={el.id} className={style.day_cell}>
+                <div>{el.dayOfMonth}</div>
+                {cellTasks.map((task) => (
+                  <button type='button' key={task._id} className={style.task_item}>
+                    {task.title}
+                  </button>
+                ))}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
