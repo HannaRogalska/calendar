@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { calendarHook, calendarCells } from '../types/calendarType';
+import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { addTask, changeTask, deleteTask, fetchTasks } from '../api/taskApi';
 
 const WEEK_DAYS = Array.from({ length: 7 }, (_, i) => {
   const tempDate = new Date(2024, 0, 1 + i); // 1 Jan 2024 - Monday
@@ -7,9 +9,63 @@ const WEEK_DAYS = Array.from({ length: 7 }, (_, i) => {
 });
 
 const useCalendar = (): calendarHook => {
+  const queryClient = useQueryClient();
   const [nowDate, setNowDate] = useState(new Date());
+
   const year = nowDate.getFullYear();
   const month = nowDate.getMonth() + 1;
+
+  // Create date variables for API query boundary
+  const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+  const lastDay = new Date(year, month, 0).getDate();
+  const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+  // Get tasks for the current month view
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['tasks', year, month],
+    queryFn: () => fetchTasks(startDate, endDate),
+  });
+
+  // Create task mutation
+
+  const createMutation = useMutation({
+    mutationFn: (payload: { task: string; date: string }) => addTask(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+    },
+  });
+
+  // Change task mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updatedText }: { id: string; updatedText: string }) =>
+      changeTask(id, updatedText),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+    },
+  });
+
+  // Delete task mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+    },
+  });
+
+  // Function wrappers for component usage
+  const handleAddTask = (task: string, date: string) => {
+    createMutation.mutate({ task, date });
+  };
+
+  const handleUpdateTask = (updatedText: string, id: string) => {
+    updateMutation.mutate({ id, updatedText });
+  };
+
+  const handleDeleteTask = (id?: string) => {
+    if (id) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   // Get the full text representation of the current month (e.g., "May")
   const fullMonth = nowDate.toLocaleString('en-US', { month: 'long' });
@@ -65,6 +121,12 @@ const useCalendar = (): calendarHook => {
     fullMonth,
     year,
     month,
+    tasksData: data?.data || {},
+    isLoading,
+    isError,
+    handleAddTask,
+    handleUpdateTask,
+    handleDeleteTask,
   };
 };
 

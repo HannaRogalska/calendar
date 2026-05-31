@@ -1,3 +1,5 @@
+import type { ClientEventSchemaType } from "../../../shared/schemas/event.schema";
+
 export type calendarCells = {
   id: string;
   dayOfMonth: number | string;
@@ -13,6 +15,12 @@ export interface calendarHook {
   calendarCells: calendarCells[];
   weekDays: calendarWeekDays[];
   fullMonth: string;
-  year: number,
-  month: number
+  year: number;
+  month: number;
+  tasksData: Record<string, ClientEventSchemaType[]>;
+  isLoading: boolean;
+  isError: boolean;
+  handleAddTask: (task: string, date: string) => void;
+  handleUpdateTask: (updatedText: string, id: string) => void;
+  handleDeleteTask: (id?: string) => void;
 }
