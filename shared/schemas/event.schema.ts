@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
 export const BaseEventSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
+  task: z.string().trim().min(1, { message: 'Task cannot be empty' }),
   isCompleted: z.boolean().default(false),
 });
 export const BackendCreateEventSchema = BaseEventSchema.extend({
