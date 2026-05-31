@@ -1,19 +1,33 @@
-import { useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import type { inlineInputType } from '../types/inputType';
 
-const InlineInput = ({ value, onSave }: inlineInputType) => {
+const InlineInput = ({ value, onSave, isCreation = false }: inlineInputType) => {
   const [text, setText] = useState(value);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setText(value);
+  }, [value]);
   const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
   const onSubmit = () => {
     const trimmed = text.trim();
-    if (trimmed && trimmed !== value.trim()) {
-      onSave(trimmed);
+    if (trimmed) {
+      if (isCreation || trimmed !== value.trim()) {
+        onSave(trimmed);
+      }
+      if (isCreation) {
+        setText('');
+      }
+    } else {
+      if (!isCreation) {
+        setText(value);
+      }
     }
     setIsOpen(false);
   };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.currentTarget.blur();
@@ -34,7 +48,9 @@ const InlineInput = ({ value, onSave }: inlineInputType) => {
       onBlur={onSubmit}
     />
   ) : (
-    <div onClick={() => setIsOpen(true)}>{text}</div>
+    <div onClick={() => setIsOpen(true)} style={{ cursor: 'pointer', minHeight: '20px' }}>
+      {text }
+    </div>
   );
 };
 
