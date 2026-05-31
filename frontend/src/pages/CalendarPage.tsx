@@ -1,9 +1,11 @@
 import style from './CalendarPage.module.css';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import useCalendar from '../hooks/useCalendar';
-import { changeTask, fetchTasks } from '../api/taskApi';
+import { changeTask, fetchTasks, deleteTask } from '../api/taskApi';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import InlineInput from '../components/InlineInput';
+import Button from '../components/Button';
+import { Trash2 } from 'lucide-react';
 
 const CalendarPage = () => {
   const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth, year, month } = useCalendar();
@@ -24,6 +26,18 @@ const CalendarPage = () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
     },
   });
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+    },
+  });
+
+  const onDeleteTask = (id?: string) => {
+    if (id) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading tasks...</div>;
@@ -36,12 +50,12 @@ const CalendarPage = () => {
     <div>
       <div className={style.container}>
         <div className={style.btn_container}>
-          <button type="button" onClick={nextMonth} className={style.btn}>
+          <Button fn={nextMonth} className={style.btn}>
             <ChevronUp />
-          </button>
-          <button type="button" onClick={prevMonth} className={style.btn}>
+          </Button>
+          <Button fn={prevMonth} className={style.btn}>
             <ChevronDown />
-          </button>
+          </Button>
         </div>
         <div>
           <h2>{fullMonth}</h2>
@@ -61,11 +75,15 @@ const CalendarPage = () => {
               <div key={el.id} className={style.day_cell}>
                 <div>{el.dayOfMonth}</div>
                 {cellTasks.map((task) => (
-                  <InlineInput
-                    key={task._id}
-                    value={task.task}
-                    onSave={( updatedText) => onSaveInput(updatedText, task._id)}
-                  />
+                  <div key={task._id}>
+                    <InlineInput
+                      value={task.task}
+                      onSave={(updatedText) => onSaveInput(updatedText, task._id)}
+                    />
+                    <Button id={task._id} fn={onDeleteTask}>
+                      <Trash2 />
+                    </Button>
+                  </div>
                 ))}
               </div>
             );
