@@ -1,27 +1,36 @@
 import style from './CalendarPage.module.css';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import useCalendar from '../hooks/useCalendar';
-import { fetchTasks } from '../api/taskApi';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { changeTask, fetchTasks } from '../api/taskApi';
+import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import InlineInput from '../components/InlineInput';
 
 const CalendarPage = () => {
   const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth, year, month } = useCalendar();
-  const [isOpen, setIsOpen] = useState(false);
 
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
   const lastDay = new Date(year, month, 0).getDate();
   const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-  console.log(isOpen);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['tasks', year, month],
     queryFn: () => fetchTasks(startDate, endDate),
   });
-  console.log(data);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: ({ id, updatedText }: { id: string; updatedText: string }) =>
+      changeTask(id, updatedText),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+    },
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading tasks...</div>;
+
+  const onSaveInput = (updatedText: string, id: string) => {
+    mutation.mutate({ id, updatedText });
+  };
 
   return (
     <div>
@@ -52,9 +61,11 @@ const CalendarPage = () => {
               <div key={el.id} className={style.day_cell}>
                 <div>{el.dayOfMonth}</div>
                 {cellTasks.map((task) => (
-                  <button type='button' key={task._id} className={style.task_item}>
-                    {task.title}
-                  </button>
+                  <InlineInput
+                    key={task._id}
+                    value={task.task}
+                    onSave={( updatedText) => onSaveInput(updatedText, task._id)}
+                  />
                 ))}
               </div>
             );
