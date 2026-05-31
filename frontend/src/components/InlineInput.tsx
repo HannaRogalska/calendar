@@ -8,8 +8,9 @@ const InlineInput = ({ value, onSave }: inlineInputType) => {
     setText(e.target.value);
   };
   const onSubmit = () => {
-    if (text.trim() !== value.trim()) {
-      onSave(text);
+    const trimmed = text.trim();
+    if (trimmed && trimmed !== value.trim()) {
+      onSave(trimmed);
     }
     setIsOpen(false);
   };
