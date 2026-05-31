@@ -27,3 +27,11 @@ export const changeTask = async (id: string, task: string): Promise<void> => {
     throw error;
   }
 };
+export const deleteTask = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`/api/tasks/${id}`);
+  } catch (error) {
+    console.error('Error  deleting task:', error);
+    throw error;
+  }
+};
