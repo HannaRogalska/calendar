@@ -7,16 +7,15 @@ const InlineInput = ({ value, onSave }: inlineInputType) => {
   const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
-   const handleSubmit = (e: any) => {
-     if (text.trim() !== value.trim()) {
-       onSave(e, text);
-     }
-     setIsOpen(false);
-   };
+  const onSubmit = () => {
+    if (text.trim() !== value.trim()) {
+      onSave(text);
+    }
+    setIsOpen(false);
+  };
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      onSave(e, text);
-      setIsOpen(false);
+      e.currentTarget.blur();
     }
     if (e.key === 'Escape') {
       setText(value);
@@ -31,7 +30,7 @@ const InlineInput = ({ value, onSave }: inlineInputType) => {
       value={text}
       onChange={onChangeInput}
       autoFocus
-      onBlur={handleSubmit}
+      onBlur={onSubmit}
     />
   ) : (
     <div onClick={() => setIsOpen(true)}>{text}</div>

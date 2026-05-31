@@ -2,8 +2,7 @@ import style from './CalendarPage.module.css';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import useCalendar from '../hooks/useCalendar';
 import { changeTask, fetchTasks } from '../api/taskApi';
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
-import { type KeyboardEvent } from 'react';
+import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import InlineInput from '../components/InlineInput';
 
 const CalendarPage = () => {
@@ -17,16 +16,20 @@ const CalendarPage = () => {
     queryKey: ['tasks', year, month],
     queryFn: () => fetchTasks(startDate, endDate),
   });
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: ({ id, updatedText }: { id: string; updatedText: string }) =>
-      changeTask(id, updatedText)
+      changeTask(id, updatedText),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+    },
   });
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading tasks...</div>;
 
-  const onSaveInput = (e: KeyboardEvent<HTMLInputElement>, updatedText: string, id: string) => {
-      mutation.mutate({ id, updatedText });
+  const onSaveInput = (updatedText: string, id: string) => {
+    mutation.mutate({ id, updatedText });
   };
 
   return (
@@ -61,7 +64,7 @@ const CalendarPage = () => {
                   <InlineInput
                     key={task._id}
                     value={task.task}
-                    onSave={(e, updatedText) => onSaveInput(e, updatedText, task._id)}
+                    onSave={( updatedText) => onSaveInput(updatedText, task._id)}
                   />
                 ))}
               </div>
