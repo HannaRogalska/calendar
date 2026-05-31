@@ -44,3 +44,4 @@ export const ApiResponseSchema = z.object({
 
 export type ZodTaskType = z.infer<typeof BackendCreateEventSchema>;
 export type ApiTasksResponseType = z.output<typeof ApiResponseSchema>;
+export type ClientEventSchemaType = z.infer<typeof ClientEventSchema>;

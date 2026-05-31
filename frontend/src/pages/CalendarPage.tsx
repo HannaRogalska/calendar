@@ -1,47 +1,38 @@
 import style from './CalendarPage.module.css';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import useCalendar from '../hooks/useCalendar';
-import { changeTask, fetchTasks } from '../api/taskApi';
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import InlineInput from '../components/InlineInput';
+import Button from '../components/Button';
+import { Trash2 } from 'lucide-react';
 
 const CalendarPage = () => {
-  const { nextMonth, prevMonth, calendarCells, weekDays, fullMonth, year, month } = useCalendar();
-
-  const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-  const lastDay = new Date(year, month, 0).getDate();
-  const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['tasks', year, month],
-    queryFn: () => fetchTasks(startDate, endDate),
-  });
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: ({ id, updatedText }: { id: string; updatedText: string }) =>
-      changeTask(id, updatedText),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
-    },
-  });
+  const {
+    nextMonth,
+    prevMonth,
+    calendarCells,
+    weekDays,
+    fullMonth,
+    tasksData,
+    isLoading,
+    isError,
+    handleAddTask,
+    handleUpdateTask,
+    handleDeleteTask,
+  } = useCalendar();
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading tasks...</div>;
-
-  const onSaveInput = (updatedText: string, id: string) => {
-    mutation.mutate({ id, updatedText });
-  };
 
   return (
     <div>
       <div className={style.container}>
         <div className={style.btn_container}>
-          <button type="button" onClick={nextMonth} className={style.btn}>
+          <Button fn={nextMonth} className={style.btn}>
             <ChevronUp />
-          </button>
-          <button type="button" onClick={prevMonth} className={style.btn}>
+          </Button>
+          <Button fn={prevMonth} className={style.btn}>
             <ChevronDown />
-          </button>
+          </Button>
         </div>
         <div>
           <h2>{fullMonth}</h2>
@@ -56,17 +47,28 @@ const CalendarPage = () => {
         </div>
         <div className={style.grid_for_month}>
           {calendarCells.map((el) => {
-            const cellTasks = el.callDateKey ? data?.data?.[el.callDateKey] || [] : [];
+            const cellTasks = el.callDateKey ? tasksData[el.callDateKey] || [] : [];
             return (
               <div key={el.id} className={style.day_cell}>
                 <div>{el.dayOfMonth}</div>
                 {cellTasks.map((task) => (
-                  <InlineInput
-                    key={task._id}
-                    value={task.task}
-                    onSave={( updatedText) => onSaveInput(updatedText, task._id)}
-                  />
+                  <div key={task._id}>
+                    <InlineInput
+                      value={task.task}
+                      onSave={(updatedText) => handleUpdateTask(updatedText, task._id)}
+                    />
+                    <Button id={task._id} fn={handleDeleteTask}>
+                      <Trash2 />
+                    </Button>
+                  </div>
                 ))}
+                <div>
+                  <InlineInput
+                    value=""
+                    isCreation={true}
+                    onSave={(text) => el.callDateKey && handleAddTask(text, el.callDateKey)}
+                  />
+                </div>
               </div>
             );
           })}
