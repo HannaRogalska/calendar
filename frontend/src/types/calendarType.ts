@@ -1,9 +1,9 @@
-import type { ClientEventSchemaType } from "../../../shared/schemas/event.schema";
+import type { ClientEventSchemaType } from '../../../shared/schemas/event.schema';
 
 export type calendarCells = {
   id: string;
   dayOfMonth: number | string;
-  callDateKey?: string
+  callDateKey?: string;
 };
 export type calendarWeekDays = {
   id: number;
@@ -23,4 +23,5 @@ export interface calendarHook {
   handleAddTask: (task: string, date: string) => void;
   handleUpdateTask: (updatedText: string, id: string) => void;
   handleDeleteTask: (id?: string) => void;
+  handleUpdateTaskDate: (id: string, newDate: string) => void;
 }
