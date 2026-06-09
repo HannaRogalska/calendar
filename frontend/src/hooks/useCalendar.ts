@@ -48,8 +48,51 @@ const useCalendar = (): calendarHook => {
   const moveMutation = useMutation({
     mutationFn: ({ taskId, newDate }: { taskId: string; newDate: string }) =>
       handleMoveTask({ taskId, newDate }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+
+    onMutate: async ({ taskId, newDate }) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks', year, month] });
+
+      const previousTasks = queryClient.getQueryData(['tasks', year, month]);
+
+      queryClient.setQueryData(['tasks', year, month], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        const clonedData = JSON.parse(JSON.stringify(oldData));
+
+        const tasksObj = clonedData.data ? clonedData.data : clonedData;
+
+        let movingTask: any = null;
+
+        Object.keys(tasksObj).forEach((dateKey) => {
+          if (Array.isArray(tasksObj[dateKey])) {
+            const foundIndex = tasksObj[dateKey].findIndex((t: any) => t._id === taskId);
+
+            if (foundIndex !== -1) {
+              movingTask = { ...tasksObj[dateKey][foundIndex] };
+              tasksObj[dateKey] = tasksObj[dateKey].filter((t: any) => t._id !== taskId);
+            }
+          }
+        });
+        if (movingTask) {
+          if (!tasksObj[newDate]) {
+            tasksObj[newDate] = [];
+          }
+          tasksObj[newDate].push(movingTask);
+        }
+        return clonedData.data ? { ...clonedData, data: tasksObj } : tasksObj;
+      });
+
+      return { previousTasks };
+    },
+
+    onError: (err, newVariables, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks', year, month], context.previousTasks);
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
     },
   });
 
@@ -109,7 +152,7 @@ const useCalendar = (): calendarHook => {
 
     // Fill the grid with the actual day numbers of the month
     for (let i = 1; i <= daysInMonth; i++) {
-       const dayStr = String(i).padStart(2, '0');
+      const dayStr = String(i).padStart(2, '0');
       cells.push({
         id: `day-${year}-${monthStr}-${dayStr}`,
         dayOfMonth: dayStr,

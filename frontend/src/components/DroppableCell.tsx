@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/react';
 import type { DroppableCellType } from '../types/droppableCellType';
-import DraggableTask from "./DraggableTask";
+import DraggableTask from './DraggableTask';
 import InlineInput from './InlineInput';
 import style from '../pages/CalendarPage.module.css';
 
