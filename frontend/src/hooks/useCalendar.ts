@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { calendarHook, calendarCells } from '../types/calendarType';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
-import { addTask, changeTask, deleteTask, fetchTasks } from '../api/taskApi';
+import { addTask, changeTask, deleteTask, fetchTasks, handleMoveTask } from '../api/taskApi';
 
 const WEEK_DAYS = Array.from({ length: 7 }, (_, i) => {
   const tempDate = new Date(2024, 0, 1 + i); // 1 Jan 2024 - Monday
@@ -31,7 +31,7 @@ const useCalendar = (): calendarHook => {
   const createMutation = useMutation({
     mutationFn: (payload: { task: string; date: string }) => addTask(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 
@@ -40,6 +40,58 @@ const useCalendar = (): calendarHook => {
     mutationFn: ({ id, updatedText }: { id: string; updatedText: string }) =>
       changeTask(id, updatedText),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+
+  // Change date task mutation
+  const moveMutation = useMutation({
+    mutationFn: ({ taskId, newDate }: { taskId: string; newDate: string }) =>
+      handleMoveTask({ taskId, newDate }),
+
+    onMutate: async ({ taskId, newDate }) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks', year, month] });
+
+      const previousTasks = queryClient.getQueryData(['tasks', year, month]);
+
+      queryClient.setQueryData(['tasks', year, month], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        const clonedData = JSON.parse(JSON.stringify(oldData));
+
+        const tasksObj = clonedData.data ? clonedData.data : clonedData;
+
+        let movingTask: any = null;
+
+        Object.keys(tasksObj).forEach((dateKey) => {
+          if (Array.isArray(tasksObj[dateKey])) {
+            const foundIndex = tasksObj[dateKey].findIndex((t: any) => t._id === taskId);
+
+            if (foundIndex !== -1) {
+              movingTask = { ...tasksObj[dateKey][foundIndex] };
+              tasksObj[dateKey] = tasksObj[dateKey].filter((t: any) => t._id !== taskId);
+            }
+          }
+        });
+        if (movingTask) {
+          if (!tasksObj[newDate]) {
+            tasksObj[newDate] = [];
+          }
+          tasksObj[newDate].push(movingTask);
+        }
+        return clonedData.data ? { ...clonedData, data: tasksObj } : tasksObj;
+      });
+
+      return { previousTasks };
+    },
+
+    onError: (err, newVariables, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks', year, month], context.previousTasks);
+      }
+    },
+
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
     },
   });
@@ -48,7 +100,7 @@ const useCalendar = (): calendarHook => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTask(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 
@@ -59,6 +111,9 @@ const useCalendar = (): calendarHook => {
 
   const handleUpdateTask = (updatedText: string, id: string) => {
     updateMutation.mutate({ id, updatedText });
+  };
+  const handleUpdateTaskDate = (taskId: string, newDate: string) => {
+    moveMutation.mutate({ taskId, newDate });
   };
 
   const handleDeleteTask = (id?: string) => {
@@ -88,18 +143,20 @@ const useCalendar = (): calendarHook => {
     const startDayOfWeek = firstDayDate.getDay();
     // Calculate leading empty cells to align Monday as the first column (0 = Mon, 6 = Sun)
     const leadingEmptyDays = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+    const monthStr = String(month).padStart(2, '0');
 
     // Fill the grid with empty strings for the days before the 1st of the month
     for (let i = 0; i < leadingEmptyDays; i++) {
-      cells.push({ id: `empty-start-${year}-${month}-${i}`, dayOfMonth: '' });
+      cells.push({ id: `empty-start-${year}-${monthStr}-${i}`, dayOfMonth: '' });
     }
 
     // Fill the grid with the actual day numbers of the month
     for (let i = 1; i <= daysInMonth; i++) {
+      const dayStr = String(i).padStart(2, '0');
       cells.push({
-        id: `day-${year}-${month}-${i}`,
-        dayOfMonth: `${String(i).padStart(2, '0')}`,
-        callDateKey: `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`,
+        id: `day-${year}-${monthStr}-${dayStr}`,
+        dayOfMonth: dayStr,
+        callDateKey: `${year}-${monthStr}-${dayStr}`,
       });
     }
     // Calculate trailing empty cells needed to complete the final row of 7 columns
@@ -127,6 +184,7 @@ const useCalendar = (): calendarHook => {
     handleAddTask,
     handleUpdateTask,
     handleDeleteTask,
+    handleUpdateTaskDate,
   };
 };
 

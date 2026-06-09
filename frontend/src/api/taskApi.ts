@@ -39,7 +39,26 @@ export const changeTask = async (id: string, task: string): Promise<void> => {
         'Content-Type': 'application/json',
       },
     };
-    await axios.patch(`/api/tasks/${id}`, { task }, config);
+    await axios.patch(`/api/tasks/changed/${id}`, { task }, config);
+  } catch (error) {
+    console.error('Error updating resource:', error);
+    throw error;
+  }
+};
+export const handleMoveTask = async ({
+  taskId,
+  newDate,
+}: {
+  taskId: string;
+  newDate: string;
+}): Promise<void> => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    await axios.patch(`/api/tasks/${taskId}`, { date: newDate }, config);
   } catch (error) {
     console.error('Error updating resource:', error);
     throw error;

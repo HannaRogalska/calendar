@@ -1,11 +1,11 @@
 import { Schema, model } from 'mongoose';
-import {ZodTaskType} from '../../../shared/schemas/event.schema'
+import { ZodTaskType } from '../../../shared/schemas/event.schema';
 
 const taskSchema = new Schema(
   {
     task: { type: String, required: true, trim: true },
     isCompleted: { type: Boolean, default: false },
-    date: { type: Date, required: true },
+    date: { type: String, required: true },
   },
   { timestamps: true }
 );
