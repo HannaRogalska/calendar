@@ -7,6 +7,9 @@ import { Trash2 } from 'lucide-react';
 const DraggableTask = ({ task, handleUpdateTask, handleDeleteTask }: DraggableTaskType) => {
   const { ref, isDragging } = useDraggable({
     id: task._id,
+    data: {
+      task: task,
+    },
   });
   const inlineStyle = {
     transition: isDragging ? 'none' : 'transform 150ms ease, opacity 150ms ease',

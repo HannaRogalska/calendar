@@ -40,18 +40,35 @@ const CalendarPage = () => {
         if (!source || !target) return;
 
         const taskId = source.id as string;
-        const targetData = target.data as { date?: string };
-        let newDate = targetData?.date || (target.id as string);
+        let newDate = '';
+        let newIndex = 0;
 
-        if (!taskId || !newDate || newDate.startsWith('empty-')) return;
+        Object.keys(tasksData).forEach((dateKey) => {
+          const foundIdx = tasksData[dateKey].findIndex((t) => t._id === target.id);
+          if (foundIdx !== -1) {
+            newDate = dateKey;
+            newIndex = foundIdx;
+          }
+        });
 
-        if (newDate.startsWith('day-')) {
-          newDate = newDate.replace('day-', '');
+        if (!newDate) {
+          const targetIdStr = target.id as string;
+
+          if (targetIdStr.startsWith('empty-')) return;
+
+          if (targetIdStr.startsWith('day-')) {
+            newDate = targetIdStr.replace('day-', '');
+          } else {
+            const targetData = target.data as { date?: string };
+            newDate = targetData?.date || targetIdStr;
+          }
+
+          const targetDayTasks = tasksData[newDate] || [];
+          newIndex = targetDayTasks.length;
         }
+        if (!taskId || !newDate) return;
 
-        if (taskId !== newDate) {
-          handleUpdateTaskDate(taskId, newDate);
-        }
+        handleUpdateTaskDate(taskId, newDate, newIndex);
       }}
     >
       <div>

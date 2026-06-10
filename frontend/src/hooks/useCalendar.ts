@@ -45,56 +45,77 @@ const useCalendar = (): calendarHook => {
   });
 
   // Change date task mutation
-  const moveMutation = useMutation({
-    mutationFn: ({ taskId, newDate }: { taskId: string; newDate: string }) =>
-      handleMoveTask({ taskId, newDate }),
+   const moveMutation = useMutation({
+     mutationFn: ({
+       taskId,
+       newDate,
+       newIndex,
+     }: {
+       taskId: string;
+       newDate: string;
+       newIndex?: number;
+     }) => handleMoveTask({ taskId, newDate, newIndex: newIndex ?? 0 }),
 
-    onMutate: async ({ taskId, newDate }) => {
-      await queryClient.cancelQueries({ queryKey: ['tasks', year, month] });
+     onMutate: async ({ taskId, newDate, newIndex }) => {
+       await queryClient.cancelQueries({ queryKey: ['tasks', year, month] });
 
-      const previousTasks = queryClient.getQueryData(['tasks', year, month]);
+       const previousTasks = queryClient.getQueryData(['tasks', year, month]);
 
-      queryClient.setQueryData(['tasks', year, month], (oldData: any) => {
-        if (!oldData) return oldData;
+       queryClient.setQueryData(['tasks', year, month], (oldData: any) => {
+         if (!oldData) return oldData;
 
-        const clonedData = JSON.parse(JSON.stringify(oldData));
+         const clonedData = JSON.parse(JSON.stringify(oldData));
+         const tasksObj = clonedData.data ? clonedData.data : clonedData;
 
-        const tasksObj = clonedData.data ? clonedData.data : clonedData;
+         let movingTask: any = null;
 
-        let movingTask: any = null;
+         // Ищем таску во всех днях и удаляем её из старого места
+         Object.keys(tasksObj).forEach((dateKey) => {
+           if (Array.isArray(tasksObj[dateKey])) {
+             const foundIndex = tasksObj[dateKey].findIndex((t: any) => t._id === taskId);
 
-        Object.keys(tasksObj).forEach((dateKey) => {
-          if (Array.isArray(tasksObj[dateKey])) {
-            const foundIndex = tasksObj[dateKey].findIndex((t: any) => t._id === taskId);
+             if (foundIndex !== -1) {
+               movingTask = { ...tasksObj[dateKey][foundIndex] };
+               tasksObj[dateKey] = tasksObj[dateKey].filter((t: any) => t._id !== taskId);
+             }
+           }
+         });
 
-            if (foundIndex !== -1) {
-              movingTask = { ...tasksObj[dateKey][foundIndex] };
-              tasksObj[dateKey] = tasksObj[dateKey].filter((t: any) => t._id !== taskId);
-            }
-          }
-        });
-        if (movingTask) {
-          if (!tasksObj[newDate]) {
-            tasksObj[newDate] = [];
-          }
-          tasksObj[newDate].push(movingTask);
-        }
-        return clonedData.data ? { ...clonedData, data: tasksObj } : tasksObj;
-      });
+         if (movingTask) {
+           if (!tasksObj[newDate]) {
+             tasksObj[newDate] = [];
+           }
 
-      return { previousTasks };
-    },
+           const targetIdx = typeof newIndex === 'number' && newIndex >= 0 ? newIndex : 0;
 
-    onError: (err, newVariables, context) => {
-      if (context?.previousTasks) {
-        queryClient.setQueryData(['tasks', year, month], context.previousTasks);
-      }
-    },
+           // Вставляем задачу на строго вычисленное место
+           tasksObj[newDate].splice(targetIdx, 0, movingTask);
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
-    },
-  });
+           // ГАРАНТИЯ: Пересчитываем order для ВСЕХ элементов дня,
+           // чтобы убрать дубликаты индексов во фронтенд-кэше
+           tasksObj[newDate] = tasksObj[newDate].map((task: any, index: number) => ({
+             ...task,
+             order: index,
+           }));
+         }
+
+         return clonedData.data ? { ...clonedData, data: tasksObj } : tasksObj;
+       });
+
+       return { previousTasks };
+     },
+
+     onError: (err, newVariables, context) => {
+       if (context?.previousTasks) {
+         queryClient.setQueryData(['tasks', year, month], context.previousTasks);
+       }
+     },
+
+     onSettled: () => {
+       queryClient.invalidateQueries({ queryKey: ['tasks', year, month] });
+     },
+   });
+
 
   // Delete task mutation
   const deleteMutation = useMutation({
@@ -112,8 +133,8 @@ const useCalendar = (): calendarHook => {
   const handleUpdateTask = (updatedText: string, id: string) => {
     updateMutation.mutate({ id, updatedText });
   };
-  const handleUpdateTaskDate = (taskId: string, newDate: string) => {
-    moveMutation.mutate({ taskId, newDate });
+  const handleUpdateTaskDate = (taskId: string, newDate: string, newIndex?: number) => {
+    moveMutation.mutate({ taskId, newDate, newIndex: newIndex ?? 0 });
   };
 
   const handleDeleteTask = (id?: string) => {

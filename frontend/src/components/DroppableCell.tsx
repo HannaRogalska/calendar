@@ -3,6 +3,7 @@ import type { DroppableCellType } from '../types/droppableCellType';
 import DraggableTask from './DraggableTask';
 import InlineInput from './InlineInput';
 import style from '../pages/CalendarPage.module.css';
+import SortableItemWrapper from './SortableItemWrapper';
 
 const DroppableCell = ({
   cell,
@@ -21,15 +22,16 @@ const DroppableCell = ({
   return (
     <div ref={ref} className={style.day_cell}>
       <div>{cell.dayOfMonth}</div>
-
-      {cellTasks.map((task) => (
-        <DraggableTask
-          key={task._id}
-          task={task}
-          handleUpdateTask={handleUpdateTask}
-          handleDeleteTask={handleDeleteTask}
-        />
-      ))}
+        {cellTasks.map((task, index) => (
+          <SortableItemWrapper key={task._id} id={task._id} index={index}>
+            <DraggableTask
+              key={task._id}
+              task={task}
+              handleUpdateTask={handleUpdateTask}
+              handleDeleteTask={handleDeleteTask}
+            />
+          </SortableItemWrapper>
+        ))}
 
       <div>
         <InlineInput
