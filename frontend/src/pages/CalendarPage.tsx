@@ -40,35 +40,49 @@ const CalendarPage = () => {
         if (!source || !target) return;
 
         const taskId = source.id as string;
-        let newDate = '';
-        let newIndex = 0;
+        const targetId = target.id as string;
 
-        Object.keys(tasksData).forEach((dateKey) => {
-          const foundIdx = tasksData[dateKey].findIndex((t) => t._id === target.id);
-          if (foundIdx !== -1) {
+        let newDate: string | null = null;
+
+        for (const dateKey of Object.keys(tasksData)) {
+          const isTask = tasksData[dateKey]?.some((t) => t._id === targetId);
+
+          if (isTask) {
             newDate = dateKey;
-            newIndex = foundIdx;
+            break;
           }
-        });
+        }
 
         if (!newDate) {
-          const targetIdStr = target.id as string;
-
-          if (targetIdStr.startsWith('empty-')) return;
-
-          if (targetIdStr.startsWith('day-')) {
-            newDate = targetIdStr.replace('day-', '');
+          if (targetId.startsWith('day-')) {
+            newDate = targetId.replace('day-', '');
           } else {
-            const targetData = target.data as { date?: string };
-            newDate = targetData?.date || targetIdStr;
+            newDate = (target.data as any)?.date || null;
           }
-
-          const targetDayTasks = tasksData[newDate] || [];
-          newIndex = targetDayTasks.length;
         }
-        if (!taskId || !newDate) return;
 
-        handleUpdateTaskDate(taskId, newDate, newIndex);
+        if (!newDate) return;
+
+        const dayTasks = tasksData[newDate] || [];
+
+        const filtered = dayTasks.filter((t) => t._id !== taskId);
+
+        let insertIndex = filtered.length;
+
+        for (let i = 0; i < filtered.length; i++) {
+          if (filtered[i]._id === targetId) {
+            insertIndex = i;
+            break;
+          }
+        }
+
+        const newList = [
+          ...filtered.slice(0, insertIndex),
+          dayTasks.find((t) => t._id === taskId)!,
+          ...filtered.slice(insertIndex),
+        ];
+
+        handleUpdateTaskDate(taskId, newDate, insertIndex);
       }}
     >
       <div>
