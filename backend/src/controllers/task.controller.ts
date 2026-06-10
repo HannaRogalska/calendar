@@ -116,60 +116,84 @@ export const changeTaskDate: RequestHandler = async (req, res, next) => {
     const { date, order } = req.body;
     const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(id)) {
-      res.status(400).json({ message: 'Invalid ID format' });
-      return;
-    }
-
     const cleanDate = new Date(date).toISOString().split('T')[0];
-    const targetOrder = typeof order === 'number' ? order : 0;
+    const targetIndex = Number(order) || 0;
 
-    const currentTask = await Task.findById(id);
-    if (!currentTask) {
+    const task = await Task.findById(id);
+    if (!task) {
       res.status(404).json({ message: 'Task not found' });
       return;
     }
 
-    const oldDate = currentTask.date;
-    const oldOrder = typeof currentTask.order === 'number' ? currentTask.order : 0;
+    const oldDate =
+      task.date instanceof Date
+        ? task.date.toISOString().split('T')[0]
+        : String(task.date).split('T')[0];
 
-    let oldDateStr = '';
-    if (oldDate instanceof Date) {
-      oldDateStr = oldDate.toISOString().split('T')[0];
-    } else if (oldDate) {
-      oldDateStr = String(oldDate).split('T')[0];
+    const sameDay = oldDate === cleanDate;
+
+    // SAME DAY
+
+    if (sameDay) {
+      const tasks = await Task.find({ date: cleanDate }).sort({ order: 1 });
+
+      const without = tasks.filter((t) => t._id.toString() !== id);
+
+      const safeIndex = Math.max(0, Math.min(targetIndex, without.length));
+
+      const reordered = [...without.slice(0, safeIndex), task, ...without.slice(safeIndex)];
+
+      await Promise.all(
+        reordered.map((t, idx) =>
+          Task.findByIdAndUpdate(t._id, {
+            $set: {
+              order: idx,
+              date: cleanDate,
+            },
+          })
+        )
+      );
+
+      return res.status(200).json({ message: 'reordered' });
     }
 
-    const isSameDay = oldDateStr === cleanDate;
+    // MOVE BETWEEN DAYS
 
-    if (isSameDay) {
-      if (oldOrder < targetOrder) {
-        await Task.updateMany(
-          { date: cleanDate, order: { $gt: oldOrder, $lte: targetOrder }, _id: { $ne: id } },
-          { $inc: { order: -1 } }
-        );
-      } else if (oldOrder > targetOrder) {
-        await Task.updateMany(
-          { date: cleanDate, order: { $gte: targetOrder, $lt: oldOrder }, _id: { $ne: id } },
-          { $inc: { order: 1 } }
-        );
-      }
-    } else {
-      await Task.updateMany(
-        { date: cleanDate, order: { $gte: targetOrder }, _id: { $ne: id } },
-        { $inc: { order: 1 } }
-      );
-      await Task.updateMany(
-        { date: oldDateStr, order: { $gt: oldOrder } },
-        { $inc: { order: -1 } }
-      );
-    }
+    const oldTasks = await Task.find({ date: oldDate }).sort({ order: 1 });
+    const newTasks = await Task.find({ date: cleanDate }).sort({ order: 1 });
 
-    currentTask.date = cleanDate as any;
-    currentTask.order = targetOrder;
-    await currentTask.save();
+    const oldWithout = oldTasks.filter((t) => t._id.toString() !== id);
 
-    res.status(200).json({ message: 'Task updated', data: currentTask });
+    const movedTask = {
+      ...task.toObject(),
+      date: cleanDate,
+    };
+
+    const safeIndex = Math.max(0, Math.min(targetIndex, newTasks.length));
+
+    const newList = [
+      ...newTasks.slice(0, safeIndex),
+      movedTask as any,
+      ...newTasks.slice(safeIndex),
+    ];
+
+    await Promise.all([
+      ...oldWithout.map((t, idx) =>
+        Task.findByIdAndUpdate(t._id, {
+          $set: { order: idx },
+        })
+      ),
+      ...newList.map((t, idx) =>
+        Task.findByIdAndUpdate(t._id, {
+          $set: {
+            order: idx,
+            date: cleanDate,
+          },
+        })
+      ),
+    ]);
+
+    return res.status(200).json({ message: 'moved' });
   } catch (error) {
     next(error);
   }

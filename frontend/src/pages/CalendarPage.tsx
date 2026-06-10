@@ -5,6 +5,7 @@ import { DragDropProvider } from '@dnd-kit/react';
 import { Feedback } from '@dnd-kit/dom';
 import Button from '../components/Button';
 import DroppableCell from '../components/DroppableCell';
+import type { DroppableData } from '../types/droppableCellType';
 
 const CalendarPage = () => {
   const {
@@ -42,6 +43,8 @@ const CalendarPage = () => {
         const taskId = source.id as string;
         const targetId = target.id as string;
 
+        if (taskId === targetId) return;
+
         let newDate: string | null = null;
 
         for (const dateKey of Object.keys(tasksData)) {
@@ -57,7 +60,7 @@ const CalendarPage = () => {
           if (targetId.startsWith('day-')) {
             newDate = targetId.replace('day-', '');
           } else {
-            newDate = (target.data as any)?.date || null;
+           newDate = (target.data as DroppableData)?.date || null;
           }
         }
 
@@ -75,13 +78,6 @@ const CalendarPage = () => {
             break;
           }
         }
-
-        const newList = [
-          ...filtered.slice(0, insertIndex),
-          dayTasks.find((t) => t._id === taskId)!,
-          ...filtered.slice(insertIndex),
-        ];
-
         handleUpdateTaskDate(taskId, newDate, insertIndex);
       }}
     >
