@@ -23,5 +23,5 @@ export interface calendarHook {
   handleAddTask: (task: string, date: string) => void;
   handleUpdateTask: (updatedText: string, id: string) => void;
   handleDeleteTask: (id?: string) => void;
-  handleUpdateTaskDate: (id: string, newDate: string) => void;
+  handleUpdateTaskDate: (id: string, newDate: string, newIndex?: number) => void;
 }

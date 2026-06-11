@@ -12,3 +12,7 @@ export interface DroppableCellType {
   handleDeleteTask: (id: string) => void;
   handleAddTask: (text: string, dateKey: string) => void;
 }
+
+export type DroppableData = {
+  date: string | null;
+};

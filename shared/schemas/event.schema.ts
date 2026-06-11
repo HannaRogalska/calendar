@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const BaseEventSchema = z.object({
   task: z.string().trim().min(1, { message: 'Task cannot be empty' }),
   isCompleted: z.boolean().default(false),
+  order: z.number().optional(),
 });
 export const BackendCreateEventSchema = BaseEventSchema.extend({
   date: z.coerce.date().refine(

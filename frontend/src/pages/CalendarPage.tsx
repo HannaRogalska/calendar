@@ -5,6 +5,7 @@ import { DragDropProvider } from '@dnd-kit/react';
 import { Feedback } from '@dnd-kit/dom';
 import Button from '../components/Button';
 import DroppableCell from '../components/DroppableCell';
+import type { DroppableData } from '../types/droppableCellType';
 
 const CalendarPage = () => {
   const {
@@ -40,18 +41,44 @@ const CalendarPage = () => {
         if (!source || !target) return;
 
         const taskId = source.id as string;
-        const targetData = target.data as { date?: string };
-        let newDate = targetData?.date || (target.id as string);
+        const targetId = target.id as string;
 
-        if (!taskId || !newDate || newDate.startsWith('empty-')) return;
+        if (taskId === targetId) return;
 
-        if (newDate.startsWith('day-')) {
-          newDate = newDate.replace('day-', '');
+        let newDate: string | null = null;
+
+        for (const dateKey of Object.keys(tasksData)) {
+          const isTask = tasksData[dateKey]?.some((t) => t._id === targetId);
+
+          if (isTask) {
+            newDate = dateKey;
+            break;
+          }
         }
 
-        if (taskId !== newDate) {
-          handleUpdateTaskDate(taskId, newDate);
+        if (!newDate) {
+          if (targetId.startsWith('day-')) {
+            newDate = targetId.replace('day-', '');
+          } else {
+           newDate = (target.data as DroppableData)?.date || null;
+          }
         }
+
+        if (!newDate) return;
+
+        const dayTasks = tasksData[newDate] || [];
+
+        const filtered = dayTasks.filter((t) => t._id !== taskId);
+
+        let insertIndex = filtered.length;
+
+        for (let i = 0; i < filtered.length; i++) {
+          if (filtered[i]._id === targetId) {
+            insertIndex = i;
+            break;
+          }
+        }
+        handleUpdateTaskDate(taskId, newDate, insertIndex);
       }}
     >
       <div>

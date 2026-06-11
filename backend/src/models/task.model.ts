@@ -5,7 +5,8 @@ const taskSchema = new Schema(
   {
     task: { type: String, required: true, trim: true },
     isCompleted: { type: Boolean, default: false },
-    date: { type: String, required: true },
+    date: { type: String, required: true, index: true },
+    order: { type: Number, default: 0, index: true },
   },
   { timestamps: true }
 );

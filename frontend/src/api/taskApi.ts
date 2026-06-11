@@ -17,7 +17,10 @@ export const fetchTasks = async (start: string, end?: string): Promise<ApiTasksR
   }
 };
 
-export const addTask = async (payload: { task: string; date: string }): Promise<ClientEventSchemaType> => {
+export const addTask = async (payload: {
+  task: string;
+  date: string;
+}): Promise<ClientEventSchemaType> => {
   try {
     const config = {
       headers: {
@@ -48,9 +51,11 @@ export const changeTask = async (id: string, task: string): Promise<void> => {
 export const handleMoveTask = async ({
   taskId,
   newDate,
+  newIndex,
 }: {
   taskId: string;
   newDate: string;
+  newIndex?: number;
 }): Promise<void> => {
   try {
     const config = {
@@ -58,7 +63,14 @@ export const handleMoveTask = async ({
         'Content-Type': 'application/json',
       },
     };
-    await axios.patch(`/api/tasks/${taskId}`, { date: newDate }, config);
+    await axios.patch(
+      `/api/tasks/${taskId}`,
+      {
+        date: newDate,
+        order: newIndex,
+      },
+      config
+    );
   } catch (error) {
     console.error('Error updating resource:', error);
     throw error;

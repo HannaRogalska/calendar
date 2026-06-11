@@ -3,6 +3,7 @@ import type { DroppableCellType } from '../types/droppableCellType';
 import DraggableTask from './DraggableTask';
 import InlineInput from './InlineInput';
 import style from '../pages/CalendarPage.module.css';
+import SortableItemWrapper from './SortableItemWrapper';
 
 const DroppableCell = ({
   cell,
@@ -11,10 +12,13 @@ const DroppableCell = ({
   handleDeleteTask,
   handleAddTask,
 }: DroppableCellType) => {
+  const isValidDay = Boolean(cell.callDateKey);
+
   const { ref } = useDroppable({
-    id: cell.callDateKey || cell.id,
+    id: cell.id,
+    disabled: !isValidDay,
     data: {
-      date: cell.callDateKey,
+      date: cell.callDateKey || null,
     },
   });
 
@@ -22,22 +26,25 @@ const DroppableCell = ({
     <div ref={ref} className={style.day_cell}>
       <div>{cell.dayOfMonth}</div>
 
-      {cellTasks.map((task) => (
-        <DraggableTask
-          key={task._id}
-          task={task}
-          handleUpdateTask={handleUpdateTask}
-          handleDeleteTask={handleDeleteTask}
-        />
+      {cellTasks.map((task, index) => (
+        <SortableItemWrapper key={task._id} id={task._id} index={index}>
+          <DraggableTask
+            task={task}
+            handleUpdateTask={handleUpdateTask}
+            handleDeleteTask={handleDeleteTask}
+          />
+        </SortableItemWrapper>
       ))}
 
-      <div>
-        <InlineInput
-          value=""
-          isCreation={true}
-          onSave={(text) => cell.callDateKey && handleAddTask(text, cell.callDateKey)}
-        />
-      </div>
+      {isValidDay && (
+        <div>
+          <InlineInput
+            value=""
+            isCreation={true}
+            onSave={(text) => cell.callDateKey && handleAddTask(text, cell.callDateKey)}
+          />
+        </div>
+      )}
     </div>
   );
 };
