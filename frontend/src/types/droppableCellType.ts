@@ -1,4 +1,5 @@
 import type { ClientEventSchemaType } from "../../../shared/schemas/event.schema";
+import { type NagerHoliday } from '../../../shared/nager/nagerType';
 
 export interface CalendarCellStructure {
   id: string;
@@ -11,6 +12,7 @@ export interface DroppableCellType {
   handleUpdateTask: (updatedText: string, id: string) => void;
   handleDeleteTask: (id: string) => void;
   handleAddTask: (text: string, dateKey: string) => void;
+  holiday?: NagerHoliday;
 }
 
 export type DroppableData = {

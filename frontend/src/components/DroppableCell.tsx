@@ -8,6 +8,7 @@ import SortableItemWrapper from './SortableItemWrapper';
 const DroppableCell = ({
   cell,
   cellTasks,
+  holiday,
   handleUpdateTask,
   handleDeleteTask,
   handleAddTask,
@@ -25,7 +26,11 @@ const DroppableCell = ({
   return (
     <div ref={ref} className={style.day_cell}>
       <div>{cell.dayOfMonth}</div>
-
+      {holiday && (
+        <div className={style.holiday_tag} title={holiday.localName}>
+          🎈 {holiday.name}
+        </div>
+      )}
       {cellTasks.map((task, index) => (
         <SortableItemWrapper key={task._id} id={task._id} index={index}>
           <DraggableTask
