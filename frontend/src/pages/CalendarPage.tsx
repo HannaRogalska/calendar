@@ -28,8 +28,6 @@ const CalendarPage = () => {
   } = useCalendar();
   const {
     data: holidays,
-    isLoading: isHolidaysLoading,
-    isError: isHolidaysError,
   } = useHolidays('PL', year, month - 1);
 
   console.log(holidays);

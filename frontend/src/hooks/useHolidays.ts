@@ -1,9 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery} from "@tanstack/react-query";
 import { getHolidays } from "../api/holidaysApi";
 
 
 export const useHolidays = (country: string, year: number, selectedMonth: number) => {
-  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['holidays', country, year],

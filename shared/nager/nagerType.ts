@@ -3,9 +3,9 @@ export interface NagerHoliday {
   localName: string;
   name: string;
   countryCode: string;
-  fixed: boolean;
+  fixed?: boolean;
   global: boolean;
   counties: string[] | null;
-  launchYear: number | null;
+  launchYear?: number | null;
   types: string[];
 }
