@@ -1,5 +1,5 @@
-import type { ClientEventSchemaType } from "../../../shared/schemas/event.schema";
-import { type NagerHoliday } from '../../../shared/nager/nagerType';
+import type { ClientEventSchemaType } from '../shared/schemas/event.schema';
+import { type NagerHoliday } from '../shared/nager/nagerType';
 
 export interface CalendarCellStructure {
   id: string;

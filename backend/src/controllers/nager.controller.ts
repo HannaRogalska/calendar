@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { NagerHoliday } from '../../../shared/nager/nagerType';
+import { NagerHoliday } from '../shared/nager/nagerType';
 import { HolidayCache } from '../models/holiday.model';
 
 export const getHolidays: RequestHandler = async (req, res, next) => {

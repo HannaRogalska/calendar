@@ -1,4 +1,4 @@
-import type { ClientEventSchemaType } from '../../../shared/schemas/event.schema';
+import type { ClientEventSchemaType } from '../shared/schemas/event.schema';
 
 export interface DraggableTaskType {
   task: ClientEventSchemaType;

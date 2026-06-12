@@ -1,7 +1,4 @@
-import type {
-  ApiTasksResponseType,
-  ClientEventSchemaType,
-} from '../../../shared/schemas/event.schema';
+import type { ApiTasksResponseType, ClientEventSchemaType } from '../shared/schemas/event.schema';
 import axios from 'axios';
 
 export const fetchTasks = async (start: string, end?: string): Promise<ApiTasksResponseType> => {
