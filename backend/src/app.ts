@@ -7,11 +7,9 @@ import { errorHandler } from './middleware/error.middleware';
 const app = express();
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? 'https://your-vercel-app.vercel.app'
-        : 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://calendar-snowy-one.vercel.app'],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    credentials: true,
   })
 );
 app.use(express.json());
