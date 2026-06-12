@@ -1,9 +1,9 @@
 import { useDroppable } from '@dnd-kit/react';
-import type { DroppableCellType } from '../types/droppableCellType';
-import DraggableTask from './DraggableTask';
-import InlineInput from './InlineInput';
-import style from '../pages/CalendarPage.module.css';
-import SortableItemWrapper from './SortableItemWrapper';
+import type { DroppableCellType } from '../../types/droppableCellType';
+import DraggableTask from '../draggableTask/DraggableTask';
+import InlineInput from '../InlineInput/InlineInput';
+import style from './DroppableCell.module.css'
+import SortableItemWrapper from './../SortableItemWrapper';
 
 const DroppableCell = ({
   cell,

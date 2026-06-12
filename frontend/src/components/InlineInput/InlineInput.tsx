@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type KeyboardEvent } from 'react';
-import type { inlineInputType } from '../types/inputType';
+import type { inlineInputType } from '../../types/inputType';
+import style from './InlineInput.module.css'
 
 const InlineInput = ({ value, onSave, isCreation = false }: inlineInputType) => {
   const [text, setText] = useState(value);
@@ -46,10 +47,11 @@ const InlineInput = ({ value, onSave, isCreation = false }: inlineInputType) => 
       onChange={onChangeInput}
       autoFocus
       onBlur={onSubmit}
+      className={style.input}
     />
   ) : (
-    <div onClick={() => setIsOpen(true)} style={{ cursor: 'pointer', minHeight: '20px' }}>
-      {text }
+    <div onClick={() => setIsOpen(true)} className={style.text}>
+      {text}
     </div>
   );
 };

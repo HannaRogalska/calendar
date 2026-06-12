@@ -1,10 +1,10 @@
 import style from './CalendarPage.module.css';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import useCalendar from '../hooks/useCalendar';
 import { DragDropProvider } from '@dnd-kit/react';
 import { Feedback } from '@dnd-kit/dom';
-import Button from '../components/Button';
-import DroppableCell from '../components/DroppableCell';
+import Button from '../components/button/Button';
+import DroppableCell from '../components/droppableCell/DroppableCell';
 import type { DroppableData } from '../types/droppableCellType';
 import { useHolidays } from '../hooks/useHolidays';
 import { type NagerHoliday } from '../../../shared/nager/nagerType';
@@ -100,18 +100,21 @@ const CalendarPage = () => {
                 <ChevronDown />
               </Button>
             </div>
-            <div>
+            <div className={style.search_wrapper}>
+              <Search className={style.search_icon} size={16} />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className={style.input}
               />
             </div>
           </div>
 
           <div>
-            <h2>
-              {fullMonth} {year}
+            <h2 className={style.year}>
+              <span className={style.month}>{fullMonth}</span>
+              <span>{year}</span>
             </h2>
           </div>
         </div>

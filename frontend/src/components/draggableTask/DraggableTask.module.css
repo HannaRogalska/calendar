@@ -1,0 +1,33 @@
+.task {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+.button {
+  background: transparent;
+  border: none;
+  color: #c9d7e8;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background: #8fa8c4;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+}
+
+.button:active {
+  transform: scale(0.96);
+}
