@@ -1,11 +1,8 @@
 import axios from 'axios';
 
-const API_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:3000'
-    : window.location.hostname.includes('vercel.app')
-      ? 'https://calendar-eesh.onrender.com'
-      : 'https://calendar-eesh.onrender.com';
+const isLocal = window.location.hostname === 'localhost';
+
+const API_URL = isLocal ? 'http://localhost:3000/api' : 'https://calendar-eesh.onrender.com/api';
 
 export const api = axios.create({
   baseURL: API_URL,
