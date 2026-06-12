@@ -14,7 +14,7 @@ const DraggableTask = ({ task, handleUpdateTask, handleDeleteTask }: DraggableTa
   });
 
   return (
-    <div key={task._id} ref={ref} className={style.task}>
+    <div key={task._id} ref={ref} className={`${style.task} ${isDragging ? style.dragging : ''}`}>
       <InlineInput
         value={task.task}
         onSave={(updatedText) => handleUpdateTask(updatedText, task._id)}

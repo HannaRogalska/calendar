@@ -93,10 +93,10 @@ const CalendarPage = () => {
         <div className={style.container}>
           <div className={style.search_container}>
             <div className={style.btn_container}>
-              <Button fn={nextMonth} className={style.btn}>
+              <Button fn={nextMonth} className={style.btn} aria-label="Next month">
                 <ChevronUp />
               </Button>
-              <Button fn={prevMonth} className={style.btn}>
+              <Button fn={prevMonth} className={style.btn} aria-label="Previous month">
                 <ChevronDown />
               </Button>
             </div>
@@ -104,6 +104,7 @@ const CalendarPage = () => {
               <Search className={style.search_icon} size={16} />
               <input
                 type="text"
+                aria-label="Search tasks"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={style.input}
