@@ -5,7 +5,15 @@ import nagerRoute from './routes/holidays.route'
 import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? 'https://your-vercel-app.vercel.app'
+        : 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  })
+);
 app.use(express.json());
 app.use('/api/tasks', taskRoutes);
 app.use('/api/holidays', nagerRoute);
