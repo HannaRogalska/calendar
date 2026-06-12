@@ -6,6 +6,8 @@ import { Feedback } from '@dnd-kit/dom';
 import Button from '../components/Button';
 import DroppableCell from '../components/DroppableCell';
 import type { DroppableData } from '../types/droppableCellType';
+import { useHolidays } from '../hooks/useHolidays';
+import { type NagerHoliday } from '../../../shared/nager/nagerType';
 
 const CalendarPage = () => {
   const {
@@ -17,11 +19,18 @@ const CalendarPage = () => {
     tasksData,
     isLoading,
     isError,
+    year,
+    month,
     handleAddTask,
     handleUpdateTask,
     handleDeleteTask,
     handleUpdateTaskDate,
   } = useCalendar();
+  const {
+    data: holidays,
+  } = useHolidays('PL', year, month - 1);
+
+  console.log(holidays);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading tasks...</div>;
@@ -60,7 +69,7 @@ const CalendarPage = () => {
           if (targetId.startsWith('day-')) {
             newDate = targetId.replace('day-', '');
           } else {
-           newDate = (target.data as DroppableData)?.date || null;
+            newDate = (target.data as DroppableData)?.date || null;
           }
         }
 
@@ -105,12 +114,16 @@ const CalendarPage = () => {
           <div className={style.grid_for_month}>
             {calendarCells.map((el) => {
               const cellTasks = el.callDateKey ? tasksData[el.callDateKey] || [] : [];
+              const cellHoliday = holidays?.find((h: NagerHoliday) => {
+                return h.date === el.callDateKey;
+              });
               return (
                 <DroppableCell
                   key={el.id}
                   cell={el}
                   cellTasks={cellTasks}
                   handleAddTask={handleAddTask}
+                  holiday={cellHoliday}
                   handleUpdateTask={handleUpdateTask}
                   handleDeleteTask={handleDeleteTask}
                 />
