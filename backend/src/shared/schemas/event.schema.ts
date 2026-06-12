@@ -23,7 +23,7 @@ export const GetTasksQuerySchema = z
     start: z.string(),
     end: z.string(),
   })
-  .refine((data) => data.end >= data.start, {
+  .refine((data: any) => data.end >= data.start, {
     error: 'The end date cannot be earlier than the start date.',
     path: ['end'],
   });
