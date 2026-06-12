@@ -8,6 +8,7 @@ import DroppableCell from '../components/DroppableCell';
 import type { DroppableData } from '../types/droppableCellType';
 import { useHolidays } from '../hooks/useHolidays';
 import { type NagerHoliday } from '../../../shared/nager/nagerType';
+import { useState } from 'react';
 
 const CalendarPage = () => {
   const {
@@ -26,11 +27,9 @@ const CalendarPage = () => {
     handleDeleteTask,
     handleUpdateTaskDate,
   } = useCalendar();
-  const {
-    data: holidays,
-  } = useHolidays('PL', year, month - 1);
+  const { data: holidays } = useHolidays('PL', year, month - 1);
 
-  console.log(holidays);
+  const [searchTerm, setSearchTerm] = useState('');
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading tasks...</div>;
@@ -92,16 +91,28 @@ const CalendarPage = () => {
     >
       <div>
         <div className={style.container}>
-          <div className={style.btn_container}>
-            <Button fn={nextMonth} className={style.btn}>
-              <ChevronUp />
-            </Button>
-            <Button fn={prevMonth} className={style.btn}>
-              <ChevronDown />
-            </Button>
+          <div className={style.search_container}>
+            <div className={style.btn_container}>
+              <Button fn={nextMonth} className={style.btn}>
+                <ChevronUp />
+              </Button>
+              <Button fn={prevMonth} className={style.btn}>
+                <ChevronDown />
+              </Button>
+            </div>
+            <div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
+
           <div>
-            <h2>{fullMonth}</h2>
+            <h2>
+              {fullMonth} {year}
+            </h2>
           </div>
         </div>
 
@@ -114,6 +125,13 @@ const CalendarPage = () => {
           <div className={style.grid_for_month}>
             {calendarCells.map((el) => {
               const cellTasks = el.callDateKey ? tasksData[el.callDateKey] || [] : [];
+
+              const filteredTasks =
+                searchTerm.trim() === ''
+                  ? cellTasks
+                  : cellTasks.filter((e) =>
+                      e.task.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
               const cellHoliday = holidays?.find((h: NagerHoliday) => {
                 return h.date === el.callDateKey;
               });
@@ -121,7 +139,7 @@ const CalendarPage = () => {
                 <DroppableCell
                   key={el.id}
                   cell={el}
-                  cellTasks={cellTasks}
+                  cellTasks={filteredTasks}
                   handleAddTask={handleAddTask}
                   holiday={cellHoliday}
                   handleUpdateTask={handleUpdateTask}

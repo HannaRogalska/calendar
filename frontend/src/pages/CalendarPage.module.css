@@ -10,6 +10,11 @@
   align-items: center;
 }
 
+.search_container {
+  display: flex;
+  gap: 20px;
+}
+
 .btn_container {
   display: flex;
   gap: 10px;
