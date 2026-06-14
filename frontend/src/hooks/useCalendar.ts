@@ -69,7 +69,6 @@ const useCalendar = (): calendarHook => {
 
          let movingTask: any = null;
 
-         // Ищем таску во всех днях и удаляем её из старого места
          Object.keys(tasksObj).forEach((dateKey) => {
            if (Array.isArray(tasksObj[dateKey])) {
              const foundIndex = tasksObj[dateKey].findIndex((t: any) => t._id === taskId);
@@ -88,11 +87,8 @@ const useCalendar = (): calendarHook => {
 
            const targetIdx = typeof newIndex === 'number' && newIndex >= 0 ? newIndex : 0;
 
-           // Вставляем задачу на строго вычисленное место
            tasksObj[newDate].splice(targetIdx, 0, movingTask);
 
-           // ГАРАНТИЯ: Пересчитываем order для ВСЕХ элементов дня,
-           // чтобы убрать дубликаты индексов во фронтенд-кэше
            tasksObj[newDate] = tasksObj[newDate].map((task: any, index: number) => ({
              ...task,
              order: index,
@@ -105,7 +101,7 @@ const useCalendar = (): calendarHook => {
        return { previousTasks };
      },
 
-     onError: (err, newVariables, context) => {
+     onError: (_1, _2, context) => {
        if (context?.previousTasks) {
          queryClient.setQueryData(['tasks', year, month], context.previousTasks);
        }
