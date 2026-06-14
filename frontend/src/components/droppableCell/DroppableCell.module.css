@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-sizing: border-box;
 }
 
 .holiday_tag {
@@ -16,3 +17,152 @@
   padding: 2px 6px;
   border-radius: 6px;
 }
+
+.cell_header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.day_number {
+  font-weight: 600;
+}
+
+.tasks_container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.input_wrapper {
+  margin-top: auto;
+}
+
+.dots_container {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .day_cell {
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    padding: 4px;
+    gap: 2px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cell_header {
+    width: 100%;
+    justify-content: center;
+    position: relative;
+  }
+
+  .holiday_text {
+    display: none;
+  }
+
+  .holiday_tag {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: transparent;
+    padding: 0;
+  }
+
+  .tasks_container,
+  .input_wrapper {
+    display: none;
+  }
+
+  .dots_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    padding-bottom: 2px;
+    flex-wrap: wrap;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    background-color: #4f46e5;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
+.modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 9999;
+}
+
+.modal_content {
+  background: white;
+  width: 100%;
+  max-height: 75vh;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close_btn {
+  background: #f1f5f9;
+  border: none;
+  font-size: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.modal_holiday {
+  font-size: 12px;
+  background: #ffe4e6;
+  color: #be123c;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.modal_tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.no_tasks {
+  color: #64748b;
+  text-align: center;
+  font-size: 14px;
+}
+
+.modal_input {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+  display: block !important;
+}
+
