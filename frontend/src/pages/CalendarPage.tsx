@@ -7,7 +7,7 @@ import Button from '../components/button/Button';
 import DroppableCell from '../components/droppableCell/DroppableCell';
 import type { DroppableData } from '../types/droppableCellType';
 import { useHolidays } from '../hooks/useHolidays';
-import { type NagerHoliday } from '../../../shared/nager/nagerType';
+import { type NagerHoliday } from '../shared/nager/nagerType';
 import { useState } from 'react';
 
 const CalendarPage = () => {

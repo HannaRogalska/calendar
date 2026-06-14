@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import {
   BackendCreateEventSchema,
   GetTasksQuerySchema,
-} from '../../../shared/schemas/event.schema';
+} from '../shared/schemas/event.schema';
 
 export const getAllTasks: RequestHandler = async (req, res, next) => {
   try {

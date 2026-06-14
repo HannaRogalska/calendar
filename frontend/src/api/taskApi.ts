@@ -1,13 +1,10 @@
-import type {
-  ApiTasksResponseType,
-  ClientEventSchemaType,
-} from '../../../shared/schemas/event.schema';
-import axios from 'axios';
+import type { ApiTasksResponseType, ClientEventSchemaType } from '../shared/schemas/event.schema';
+import { api } from './axios';
 
 export const fetchTasks = async (start: string, end?: string): Promise<ApiTasksResponseType> => {
   const finalEnd = end || start;
   try {
-    const response = await axios.get<ApiTasksResponseType>(
+    const response = await api.get<ApiTasksResponseType>(
       `/api/tasks?start=${start}&end=${finalEnd}`
     );
     return response.data;
@@ -27,7 +24,7 @@ export const addTask = async (payload: {
         'Content-Type': 'application/json',
       },
     };
-    const { data } = await axios.post(`/api/tasks`, payload, config);
+    const { data } = await api.post(`/api/tasks`, payload, config);
     return data;
   } catch (error) {
     console.error('Error task not created :', error);
@@ -42,7 +39,7 @@ export const changeTask = async (id: string, task: string): Promise<void> => {
         'Content-Type': 'application/json',
       },
     };
-    await axios.patch(`/api/tasks/changed/${id}`, { task }, config);
+    await api.patch(`/api/tasks/changed/${id}`, { task }, config);
   } catch (error) {
     console.error('Error updating resource:', error);
     throw error;
@@ -63,7 +60,7 @@ export const handleMoveTask = async ({
         'Content-Type': 'application/json',
       },
     };
-    await axios.patch(
+    await api.patch(
       `/api/tasks/${taskId}`,
       {
         date: newDate,
@@ -78,7 +75,7 @@ export const handleMoveTask = async ({
 };
 export const deleteTask = async (id: string): Promise<void> => {
   try {
-    await axios.delete(`/api/tasks/${id}`);
+    await api.delete(`/api/tasks/${id}`);
   } catch (error) {
     console.error('Error  deleting task:', error);
     throw error;

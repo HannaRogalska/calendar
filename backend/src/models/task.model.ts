@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { ZodTaskType } from '../../../shared/schemas/event.schema';
+import { ZodTaskType } from '../shared/schemas/event.schema';
 
 const taskSchema = new Schema(
   {
