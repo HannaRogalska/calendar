@@ -25,7 +25,7 @@ const DroppableCell = ({
     },
   });
 
-  const handleCellClick = (e: React.MouseEvent) => {
+  const handleCellClick = () => {
     if (window.innerWidth <= 768 && isValidDay) {
       setIsModalOpen(true);
     }
