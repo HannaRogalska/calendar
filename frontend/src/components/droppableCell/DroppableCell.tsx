@@ -30,7 +30,6 @@ const DroppableCell = ({
       setIsModalOpen(true);
     }
   };
-
   return (
     <>
       <div ref={ref} className={style.day_cell} onClick={handleCellClick}>
@@ -44,7 +43,6 @@ const DroppableCell = ({
             )}
           </div>
         )}
-
         <div className={style.tasks_container}>
           {cellTasks.map((task, index) => (
             <SortableItemWrapper key={task._id} id={task._id} index={index}>
@@ -56,7 +54,6 @@ const DroppableCell = ({
             </SortableItemWrapper>
           ))}
         </div>
-
         {cellTasks.length > 0 && (
           <div className={style.dots_container}>
             {cellTasks.slice(0, 3).map((task) => (
