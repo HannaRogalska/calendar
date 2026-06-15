@@ -2,6 +2,14 @@
 
 An interactive web-based calendar application for task management. This project features a responsive monthly grid layout with drag-and-drop capabilities for rescheduling, dynamic task filtering, and public holiday integration.
 
+<p align="center">
+  <img src="./images/computer-screen.png" alt="Calendar Application Interface" width="700">
+</p>
+<p align="center">
+  <img src="./images/mobile-phone-screen.png" alt="Calendar Application Interface" width="700">
+</p>
+
+
 ## Features 
 
 - **Dynamic Monthly Calendar:** Seamless navigation between months with auto-generated grid layout.
@@ -18,10 +26,3 @@ An interactive web-based calendar application for task management. This project 
 - **Backend:** Node.js, Express, TypeScript, Mongoose (MongoDB), Zod (Data Validation).
 - **Icons:** `lucide-react`.
 - **External API:** Nager.Date API
-
-
-
-
-## License
-
-This project is licensed under the MIT License.
