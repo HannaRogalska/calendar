@@ -5,6 +5,8 @@ import InlineInput from '../InlineInput/InlineInput';
 import style from './DroppableCell.module.css';
 import SortableItemWrapper from './../SortableItemWrapper';
 import { useState } from 'react';
+import { SquarePen } from 'lucide-react';
+
 
 const DroppableCell = ({
   cell,
@@ -16,6 +18,7 @@ const DroppableCell = ({
 }: DroppableCellType) => {
   const isValidDay = Boolean(cell.callDateKey);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCliked, setIsCliked] = useState(false);
 
   const { ref } = useDroppable({
     id: cell.id,
@@ -64,11 +67,16 @@ const DroppableCell = ({
 
         {isValidDay && (
           <div className={style.input_wrapper}>
-            <InlineInput
-              value=""
-              isCreation={true}
-              onSave={(text) => cell.callDateKey && handleAddTask(text, cell.callDateKey)}
-            />
+            {!isCliked ? (
+              <SquarePen className={style.icon} onClick={() => setIsCliked(true)} />
+            ) : (
+              <InlineInput
+                value=""
+                isCreation={true}
+                setIsCliked={setIsCliked}
+                onSave={(text) => cell.callDateKey && handleAddTask(text, cell.callDateKey)}
+              />
+            )}
           </div>
         )}
       </div>
@@ -108,6 +116,7 @@ const DroppableCell = ({
               <InlineInput
                 value=""
                 isCreation={true}
+                setIsCliked={setIsCliked}
                 onSave={(text) => {
                   if (cell.callDateKey) {
                     handleAddTask(text, cell.callDateKey);
