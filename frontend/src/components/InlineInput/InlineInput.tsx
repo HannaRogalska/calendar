@@ -2,9 +2,9 @@ import { useEffect, useState, type ChangeEvent, type KeyboardEvent } from 'react
 import type { inlineInputType } from '../../types/inputType';
 import style from './InlineInput.module.css'
 
-const InlineInput = ({ value, onSave, isCreation = false }: inlineInputType) => {
+const InlineInput = ({ value, onSave, isCreation = false, setIsCliked }: inlineInputType) => {
   const [text, setText] = useState(value);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isCreation);
 
   useEffect(() => {
     setText(value);
@@ -27,6 +27,7 @@ const InlineInput = ({ value, onSave, isCreation = false }: inlineInputType) => 
       }
     }
     setIsOpen(false);
+    setIsCliked?.(false);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -36,6 +37,7 @@ const InlineInput = ({ value, onSave, isCreation = false }: inlineInputType) => 
     if (e.key === 'Escape') {
       setText(value);
       setIsOpen(false);
+      setIsCliked?.(false);
     }
   };
   return isOpen ? (
